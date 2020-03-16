@@ -33,10 +33,10 @@ location VARCHAR,
 method VARCHAR, 
 page VARCHAR,
 registration FLOAT,
-session_id INT SORTKEY DISTKEY,
+session_id INT NOT NULL SORTKEY DISTKEY,
 song VARCHAR,
 status INT,
-ts BIGINT,
+ts BIGINT NOT NULL,
 user_agent VARCHAR,
 user_id INT
 )
@@ -46,12 +46,12 @@ staging_songs_table_create = ("""
 CREATE TABLE IF NOT EXISTS staging_songs
 (
 num_songs VARCHAR,
-artist_id VARCHAR SORTKEY DISTKEY, 
+artist_id VARCHAR NOT NULL SORTKEY DISTKEY, 
 artist_latitude FLOAT, 
 artist_longitude FLOAT,
 artist_location VARCHAR,
 artist_name VARCHAR, 
-song_id VARCHAR,
+song_id VARCHAR NOT NULL,
 title VARCHAR , 
 duration FLOAT, 
 year INT
@@ -65,9 +65,9 @@ songplay_id INT IDENTITY(0,1) SORTKEY,
 start_time TIMESTAMP NOT NULL, 
 user_id INT NOT NULL DISTKEY, 
 level VARCHAR, 
-song_id VARCHAR,
-artist_id VARCHAR , 
-session_id INT, 
+song_id VARCHAR NOT NULL,
+artist_id VARCHAR NOT NULL, 
+session_id INT NOT NULL, 
 location VARCHAR, 
 user_agent VARCHAR
 )
@@ -76,7 +76,7 @@ user_agent VARCHAR
 user_table_create = ("""
 CREATE TABLE IF NOT EXISTS users 
 (
-user_id INT SORTKEY,
+user_id INT NOT NULL SORTKEY,
 first_name VARCHAR,
 last_name VARCHAR, 
 gender VARCHAR,
@@ -87,9 +87,9 @@ level VARCHAR
 song_table_create = ("""
 CREATE TABLE IF NOT EXISTS songs 
 (
-song_id VARCHAR SORTKEY,
-title VARCHAR,
-artist_id VARCHAR,
+song_id VARCHAR NOT NULL SORTKEY,
+title VARCHAR NOT NULL,
+artist_id VARCHAR NOT NULL,
 year INT,
 duration FLOAT
 )
@@ -98,7 +98,7 @@ duration FLOAT
 artist_table_create = ("""
 CREATE TABLE IF NOT EXISTS artists
 (
-artist_id VARCHAR SORTKEY,
+artist_id VARCHAR NOT NULL SORTKEY,
 artist_name VARCHAR,
 artist_location VARCHAR,
 artist_latitude FLOAT,
@@ -109,7 +109,7 @@ artist_longitude FLOAT
 time_table_create = ("""
 CREATE TABLE IF NOT EXISTS time
 (
-start_time TIMESTAMP SORTKEY,
+start_time TIMESTAMP NOT NULL SORTKEY,
 hour INT,
 day INT,
 week INT,
@@ -150,14 +150,14 @@ TIMESTAMP 'epoch' + ts::INT8/1000 * INTERVAL '1 second' AS start_time,
 e.user_id,
 e.level,
 s.song_id,
-e.artist,
+s.artist_id,
 e.session_id,
 e.location,
 e.user_agent
 FROM staging_events e
-LEFT JOIN staging_songs s
-ON e.song = s.title
-AND e.artist = s.artist_name
+JOIN staging_songs s
+ON e.artist = s.artist_name
+AND e.song = s.title
 WHERE e.page = 'NextSong'
 """)
 
@@ -224,9 +224,11 @@ EXTRACT(weekday FROM start_time) as weekday
 FROM time_parse
 """)
 
+
 # QUERY LISTS
 
 create_table_queries = [staging_events_table_create, staging_songs_table_create, songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
 drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
 copy_table_queries = [staging_events_copy, staging_songs_copy]
+
 insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]
