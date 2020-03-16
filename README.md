@@ -18,6 +18,7 @@ We'll build the database by optimizing the tables around efficient reads for com
 * Fact table: songplays
 * Dimensions tables: songs, artist, users, time
 
+![StarSchema](https://user-images.githubusercontent.com/6285945/76783209-75c9a400-67d7-11ea-8594-9710cae17048.PNG)
 
 The three most important advantages of using Star schema are:
 
